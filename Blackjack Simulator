@@ -1,0 +1,172 @@
+"BLACKJACK"
+import random
+# a list of all the suits
+# a list of all the ranks
+card_values = {'A': 11,'2':2,'3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':10, 'K':10}
+class Card:
+    "features of the card"
+    def __init__(self,value,suit):
+        self.cost = value
+        self.value = ['A', '2', '3', '4', '5','6', '7', '8', '9', '10','J', 'Q', 'K'][value-1]
+        self.suit = '♥️♦♠♣'[suit]
+
+    def price(self):
+        "regulating price"
+        if self.cost >= 10:
+            return 10
+        elif self.cost == 1:
+            return 11
+        return self.cost
+    
+
+    def show(self):
+        "visual representation of card"
+
+        print('╔════════════╗')
+        print(f' ║     {self.value:<2}    ║')
+        print('║            ║')
+        print(f' ║       {self.suit}   ║')
+        print('║            ║')   
+        print(f' ║        {self.value:>2} ║')
+        print('╚════════════╝')
+
+
+class Deck:
+    "handle the deck of cards"
+    def __init__(self):
+        self.cards = []
+
+
+    def generate(self):
+        'add the cards to the deck'
+        for i in range(1, 14):
+            for j in range(4):
+                #create the card object
+                self.cards.append(Card(i, j))
+
+
+    def draw(self,iteration):
+        "remove a card at random and add to"
+        cards = []
+        
+        for  i in range(iteration):
+            card = random.choice(self.cards)
+            self.cards.remove(card)
+            cards.append(card)
+        return cards
+    
+
+    def count(self):
+        "count the length of deck of cards"
+        return len(self.cards)
+    
+
+class Player:
+    'functions of player and dealer'
+    def __init__(self,isdealer,deck):
+        self.cards = []
+        self.isdealer = isdealer
+        self.deck = deck
+        self.score = 0
+
+
+    def hit(self):
+        "keep hitting if less than 21"
+        self.cards.extend(self.deck.draw(1))
+        self.check_score()
+        if self.score > 21:
+            return 1
+        return 0    
+    
+
+    def deal(self):
+        "deal two cards from the deck"
+        self.cards.extend(self.deck.draw(2))
+        self.check_score()
+        if self.score == 21:
+            return 1
+        return 0
+    
+    
+    def check_score(self):
+        'count the scores to know winner'
+        a_counter = 0
+        self.score = 0
+        for card in self.cards:
+            if card.price() == 11:
+                a_counter += 1
+            self.score += card.price()
+
+
+        while a_counter != 0 and self.score > 21 :
+            a_counter -= 1
+            self.score -= 10
+        return self.score
+    
+    
+    def show(self):
+        "display the player or dealers cards"
+        if self.isdealer:
+            print('Dealers Cards')
+        else:
+            print('Players Cards')
+        for i in self.cards:
+            i.show()
+        print('Score: '+ str(self.score))
+
+        
+class Blackjack:
+    "when you want something you get it"
+    def __init__(self):
+        self.deck = Deck()
+        self.deck.generate()
+        self.myplayer = Player(False, self.deck)
+        self.mydealer = Player(True, self.deck)
+        self.card = self.deck.draw(1)
+
+    def play(self):
+        "play the cards you were dealt"
+        p_status = self.myplayer.deal()
+        d_status = self.mydealer.deal()
+
+        self.myplayer.show()
+
+        if p_status == 1:
+            print('Player got Blackjack! Congrts!')
+            if d_status == 1:
+                print('Dealer and player got blackjack! Its a push (Tie)') 
+            return 1
+        cmd = ''
+        while cmd != 'Stand':
+            bust = 0
+            cmd = input('Hit or Stand')
+
+            if cmd == 'Hit':
+                bust = self.myplayer.hit()
+                self.myplayer.show()
+            if bust == 1:
+                print('Player busted Good game')      
+                return 1
+        print('\n')
+        self.mydealer.show()
+        if d_status == 1:
+            print('Dealer got blackjack! Better luck next time')
+            return 1
+        while self.mydealer.check_score() > 17:
+            if self.mydealer.hit() == 1:
+                self.mydealer.show()
+                print("deHitHitaler busted! Congrats!")
+                return 1
+            self.mydealer.show()
+        if self.mydealer.check_score() == self.myplayer.check_score():
+            print('Its a push! (tie) Better luck next time')
+        elif self.mydealer.check_score() > self.myplayer.check_score():
+            print('Dealer wins! Good game')
+        elif self.myplayer.check_score() > self.mydealer.check_score():    
+            print('Player wins! Congratulations')
+
+b = Blackjack()
+
+
+b.play()
+            
