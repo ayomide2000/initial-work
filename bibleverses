@@ -1,0 +1,9 @@
+import random
+import pythonbible as bible
+num = random.randrange(0,73000000)
+while bible.is_valid_verse_id(num) is False:
+    num = random.randrange(0,73000000)
+
+
+print(bible.get_verse_text(num))
+print(bible.get_book_chapter_verse(num))
